@@ -1,5 +1,6 @@
 use std::fs;
 use std::io::Read;
+use std::path::Path;
 
 use clap::Parser;
 use itertools::Itertools;
@@ -8,10 +9,9 @@ use anyhow::Result;
 
 /// reads a file into a u8 vector
 /// - `prefix_length` : the prefix in bytes to read from `filename`. 0 means to read the entire file
-pub fn file2byte_vector(filename: &str, prefix_length: Option<u64>) -> Result<Vec<u8>> {
-    let path = std::path::Path::new(filename);
-    let mut f = fs::File::open(&path).expect("no file found");
-    let metadata = fs::metadata(&path).expect("unable to read metadata");
+pub fn file2byte_vector<P: AsRef<Path>>(path: P, prefix_length: Option<u64>) -> Result<Vec<u8>> {
+    let mut f = fs::File::open(&path)?;
+    let metadata = fs::metadata(&path)?;
     let num_file_bytes = metadata.len();
     let buffer_length = prefix_length
         .map(|v| v.min(num_file_bytes))
